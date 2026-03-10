@@ -197,14 +197,14 @@
 }
 @keyframes slideUp { from { opacity:0; transform: translateY(12px); } to { opacity:1; transform:none; } }
 
-.result-due  { border-top: 3px solid var(--accent); }
-.result-none { border-top: 3px solid var(--green); }
+.result-due  { border-top: 3px solid var(--green); }
+.result-none { border-top: 3px solid var(--red); }
 
 .result-icon-wrap {
   display: flex; justify-content: center; padding: 28px 0 14px;
 }
-.result-due  .result-icon-wrap { color: var(--accent); }
-.result-none .result-icon-wrap { color: var(--green); }
+.result-due  .result-icon-wrap { color: var(--green); }
+.result-none .result-icon-wrap { color: var(--red); }
 
 .result-message {
   text-align: center; padding: 0 24px 22px;

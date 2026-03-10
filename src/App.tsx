@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import './App.css';
 import type { Assets, Liabilities, NisabStandard, ZakatResponse } from './types';
 import { calculateZakat } from './api';
@@ -48,6 +48,13 @@ function fmt(value: number, currency: string) {
   }
 }
 
+function formatNumber(value: number): string {
+  return new Intl.NumberFormat(undefined, {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(value);
+}
+
 // ─── sub-components ──────────────────────────────────────────────────────────
 
 interface FieldProps {
@@ -59,6 +66,32 @@ interface FieldProps {
 }
 
 function NumberField({ label, hint, value, onChange, currency }: FieldProps) {
+  const [display, setDisplay] = useState(value === 0 ? '' : formatNumber(value));
+  const [focused, setFocused] = useState(false);
+
+  useEffect(() => {
+    if (!focused) {
+      setDisplay(value === 0 ? '' : formatNumber(value));
+    }
+  }, [value, focused]);
+
+  const handleFocus = () => {
+    setFocused(true);
+    setDisplay(value === 0 ? '' : String(value));
+  };
+
+  const handleBlur = () => {
+    setFocused(false);
+    const parsed = parseFloat(display.replace(/,/g, '')) || 0;
+    onChange(parsed);
+    setDisplay(parsed === 0 ? '' : formatNumber(parsed));
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const raw = e.target.value;
+    if (/^[\d,]*\.?\d*$/.test(raw) || raw === '') setDisplay(raw);
+  };
+
   return (
     <div className="field">
       <label className="field-label">{label}</label>
@@ -66,12 +99,13 @@ function NumberField({ label, hint, value, onChange, currency }: FieldProps) {
       <div className="input-wrap">
         <span className="currency-badge">{currency}</span>
         <input
-          type="number"
-          min="0"
-          step="0.01"
-          value={value === 0 ? '' : value}
+          type="text"
+          inputMode="decimal"
+          value={display}
           placeholder="0.00"
-          onChange={(e) => onChange(parseFloat(e.target.value) || 0)}
+          onFocus={handleFocus}
+          onBlur={handleBlur}
+          onChange={handleChange}
           className="number-input"
         />
       </div>
